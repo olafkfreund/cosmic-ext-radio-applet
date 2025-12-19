@@ -1,0 +1,38 @@
+<svg width="800" height="300" viewBox="0 0 800 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="300" rx="16" fill="#0D0D12"/>
+  <rect width="800" height="300" rx="16" fill="url(#paint0_radial_bg)" fill-opacity="0.3"/>
+  
+  <!-- Content Group -->
+  <g transform="translate(60, 80)">
+    <!-- Stylized Radio Icon -->
+    <rect x="0" y="20" width="120" height="80" rx="12" stroke="url(#paint1_linear_logo)" stroke-width="4"/>
+    <path d="M40 20V0M80 20V5" stroke="url(#paint1_linear_logo)" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="95" cy="75" r="8" fill="url(#paint1_linear_logo)"/>
+    <rect x="20" y="45" width="50" height="15" rx="4" fill="url(#paint1_linear_logo)" fill-opacity="0.2"/>
+    <path d="M25 52.5H65" stroke="url(#paint1_linear_logo)" stroke-width="2" stroke-linecap="round"/>
+    
+    <!-- Sound Waves -->
+    <path d="M140 100L150 20L160 120L170 50L180 140L190 40L200 110L210 60L220 90" stroke="url(#paint2_linear_neon)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Text -->
+    <text x="250" y="65" fill="white" font-family="Inter, Roboto, sans-serif" font-size="56" font-weight="800" letter-spacing="-0.02em">COSMIC</text>
+    <text x="250" y="125" fill="url(#paint2_linear_neon)" font-family="Inter, Roboto, sans-serif" font-size="48" font-weight="700">Radio</text>
+  </g>
+
+  <!-- Gradients -->
+  <defs>
+    <radialGradient id="paint0_radial_bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(400 150) rotate(90) scale(150 400)">
+      <stop stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#0D0D12" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="paint1_linear_logo" x1="0" y1="20" x2="120" y2="100" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+    <linearGradient id="paint2_linear_neon" x1="140" y1="20" x2="600" y2="125" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#F472B6"/>
+    </linearGradient>
+  </defs>
+</svg>

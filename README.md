@@ -54,7 +54,7 @@ This project is under the [MIT](LICENSE) license.
 
 Um player de rádio online moderno e integrado ao painel do COSMIC Desktop, desenvolvido exclusivamente para o ecossistema COSMIC usando Rust e libcosmic.
 
-<img src="resources/banner.png" width="400" alt="Banner">
+<img src="resources/banner.svg" width="600" alt="Banner">
 
 ### ✨ Funcionalidades
 

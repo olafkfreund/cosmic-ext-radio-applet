@@ -3,7 +3,7 @@ use cosmic::cosmic_config::{self, cosmic_config_derive::CosmicConfigEntry, Cosmi
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, CosmicConfigEntry, Eq, PartialEq, Serialize, Deserialize)]
-#[version = 5]
+#[version = 9]
 pub struct Config {
     #[serde(default)]
     pub favorites: Vec<Station>,

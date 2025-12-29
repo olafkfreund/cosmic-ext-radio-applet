@@ -53,13 +53,20 @@ impl cosmic::Application for AppModel {
     fn init(core: cosmic::Core, _flags: Self::Flags) -> (Self, Task<cosmic::Action<Self::Message>>) {
         let config_handler = cosmic::cosmic_config::Config::new(Self::APP_ID, Config::VERSION).unwrap();
         let config = match Config::get_entry(&config_handler) {
-            Ok(c) => c,
+            Ok(c) => {
+                println!("Config loaded successfully.");
+                c
+            },
             Err((_errs, c)) => {
-                eprintln!("Errors loading config: {:?}", _errs);
+                println!("Errors loading config: {:?}. Creating new default.", _errs);
+                // Tenta salvar imediatamente para verificar permissões
+                if let Err(e) = c.write_entry(&config_handler) {
+                    println!("CRITICAL ERROR: Failed to write initial config: {:?}", e);
+                }
                 c
             }
         };
-        println!("Config loaded. Favorites: {}", config.favorites.len());
+        println!("SUCESSO: Rodando Config v{}. Favoritos: {}", Config::VERSION, config.favorites.len());
 
         let audio = AudioManager::new();
         audio.set_volume(config.volume as f32 / 100.0);
@@ -215,8 +222,11 @@ impl cosmic::Application for AppModel {
                 } else {
                     self.config.favorites.push(station);
                 }
+                println!("Saving config with {} favorites...", self.config.favorites.len());
                 if let Err(e) = self.config.write_entry(&self.config_handler) {
                     eprintln!("Failed to save config: {:?}", e);
+                } else {
+                    println!("Config saved successfully!");
                 }
             }
         }

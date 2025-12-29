@@ -1,41 +1,64 @@
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 use reqwest::Error;
 
-fn deserialize_null_default<'de, D, T>(deserializer: D) -> Result<T, D::Error>
-where
-    T: Default + Deserialize<'de>,
-    D: Deserializer<'de>,
-{
-    let opt = Option::deserialize(deserializer)?;
-    Ok(opt.unwrap_or_default())
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+pub struct Station {
+    #[serde(default)]
+    pub stationuuid: String,
+    #[serde(default)]
+    pub name: String,
+    #[serde(default)]
+    pub url: String,
+    #[serde(default)]
+    pub url_resolved: String,
+    #[serde(default)]
+    pub homepage: String,
+    #[serde(default)]
+    pub favicon: String,
+    #[serde(default)]
+    pub tags: String,
+    #[serde(default)]
+    pub country: String,
+    #[serde(default)]
+    pub language: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct Station {
-    #[serde(default, deserialize_with = "deserialize_null_default")]
-    pub stationuuid: String,
-    #[serde(default, deserialize_with = "deserialize_null_default")]
-    pub name: String,
-    #[serde(default, deserialize_with = "deserialize_null_default")]
-    pub url: String,
-    #[serde(default, deserialize_with = "deserialize_null_default")]
-    pub url_resolved: String,
-    #[serde(default, deserialize_with = "deserialize_null_default")]
-    pub homepage: String,
-    #[serde(default, deserialize_with = "deserialize_null_default")]
-    pub favicon: String,
-    #[serde(default, deserialize_with = "deserialize_null_default")]
-    pub tags: String,
-    #[serde(default, deserialize_with = "deserialize_null_default")]
-    pub country: String,
-    #[serde(default, deserialize_with = "deserialize_null_default")]
-    pub language: String,
+// Estrutura intermediária para lidar com nulls da API JSON
+#[derive(Deserialize)]
+struct ApiStation {
+    #[serde(default)] stationuuid: Option<String>,
+    #[serde(default)] name: Option<String>,
+    #[serde(default)] url: Option<String>,
+    #[serde(default)] url_resolved: Option<String>,
+    #[serde(default)] homepage: Option<String>,
+    #[serde(default)] favicon: Option<String>,
+    #[serde(default)] tags: Option<String>,
+    #[serde(default)] country: Option<String>,
+    #[serde(default)] language: Option<String>,
+}
+
+impl From<ApiStation> for Station {
+    fn from(api: ApiStation) -> Self {
+        Self {
+            stationuuid: api.stationuuid.unwrap_or_default(),
+            name: api.name.unwrap_or_default(),
+            url: api.url.unwrap_or_default(),
+            url_resolved: api.url_resolved.unwrap_or_default(),
+            homepage: api.homepage.unwrap_or_default(),
+            favicon: api.favicon.unwrap_or_default(),
+            tags: api.tags.unwrap_or_default(),
+            country: api.country.unwrap_or_default(),
+            language: api.language.unwrap_or_default(),
+        }
+    }
 }
 
 pub async fn search_stations(query: String) -> Result<Vec<Station>, Error> {
     if query.trim().is_empty() {
         return Ok(Vec::new());
     }
+
+    println!("Debug: Buscando estações para '{}'...", query);
 
     // Lista de servidores espelho para redundância
     let servers = [
@@ -68,8 +91,8 @@ pub async fn search_stations(query: String) -> Result<Vec<Station>, Error> {
             Ok(response) => {
                 match response.error_for_status() {
                     Ok(valid_response) => {
-                        match valid_response.json::<Vec<Station>>().await {
-                            Ok(stations) => return Ok(stations), // Sucesso! Retorna imediatamente
+                        match valid_response.json::<Vec<ApiStation>>().await {
+                            Ok(api_stations) => return Ok(api_stations.into_iter().map(Station::from).collect()),
                             Err(e) => last_result = Err(e),      // Erro no JSON, tenta próximo
                         }
                     },

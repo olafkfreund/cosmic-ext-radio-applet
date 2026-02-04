@@ -1,5 +1,6 @@
-use serde::{Deserialize, Serialize};
 use reqwest::Error;
+use serde::{Deserialize, Serialize};
+use tracing::{debug, warn};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub struct Station {
@@ -23,18 +24,27 @@ pub struct Station {
     pub language: String,
 }
 
-// Estrutura intermediária para lidar com nulls da API JSON
+/// Intermediate struct to handle null values from API JSON
 #[derive(Deserialize)]
 struct ApiStation {
-    #[serde(default)] stationuuid: Option<String>,
-    #[serde(default)] name: Option<String>,
-    #[serde(default)] url: Option<String>,
-    #[serde(default)] url_resolved: Option<String>,
-    #[serde(default)] homepage: Option<String>,
-    #[serde(default)] favicon: Option<String>,
-    #[serde(default)] tags: Option<String>,
-    #[serde(default)] country: Option<String>,
-    #[serde(default)] language: Option<String>,
+    #[serde(default)]
+    stationuuid: Option<String>,
+    #[serde(default)]
+    name: Option<String>,
+    #[serde(default)]
+    url: Option<String>,
+    #[serde(default)]
+    url_resolved: Option<String>,
+    #[serde(default)]
+    homepage: Option<String>,
+    #[serde(default)]
+    favicon: Option<String>,
+    #[serde(default)]
+    tags: Option<String>,
+    #[serde(default)]
+    country: Option<String>,
+    #[serde(default)]
+    language: Option<String>,
 }
 
 impl From<ApiStation> for Station {
@@ -53,56 +63,63 @@ impl From<ApiStation> for Station {
     }
 }
 
+/// Mirror servers for radio-browser.info API redundancy
+const API_SERVERS: &[&str] = &[
+    "https://all.api.radio-browser.info",
+    "https://de1.api.radio-browser.info",
+    "https://fr1.api.radio-browser.info",
+    "https://at1.api.radio-browser.info",
+    "https://nl1.api.radio-browser.info",
+    "https://us1.api.radio-browser.info",
+    "https://es1.api.radio-browser.info",
+];
+
+/// Search for radio stations by name
 pub async fn search_stations(query: String) -> Result<Vec<Station>, Error> {
     if query.trim().is_empty() {
         return Ok(Vec::new());
     }
 
-    println!("Debug: Buscando estações para '{}'...", query);
+    debug!("Searching stations for '{}'", query);
 
-    // Lista de servidores espelho para redundância
-    let servers = [
-        "https://all.api.radio-browser.info",
-        "https://de1.api.radio-browser.info",
-        "https://fr1.api.radio-browser.info",
-        "https://at1.api.radio-browser.info",
-        "https://nl1.api.radio-browser.info",
-        "https://us1.api.radio-browser.info",
-        "https://es1.api.radio-browser.info",
-    ];
-    
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(5))
         .build()
         .unwrap_or_else(|_| reqwest::Client::new());
 
-    let mut last_result: Result<Vec<Station>, Error> = Ok(Vec::new());
+    let mut last_error: Option<Error> = None;
 
-    for server in servers {
+    for server in API_SERVERS {
         let url = format!("{}/json/stations/search", server);
         let params = [("name", query.as_str()), ("limit", "20")];
-        
-        let response_attempt = client.get(&url)
-            .query(&params)
-            .send()
-            .await;
 
-        match response_attempt {
-            Ok(response) => {
-                match response.error_for_status() {
-                    Ok(valid_response) => {
-                        match valid_response.json::<Vec<ApiStation>>().await {
-                            Ok(api_stations) => return Ok(api_stations.into_iter().map(Station::from).collect()),
-                            Err(e) => last_result = Err(e),      // Erro no JSON, tenta próximo
-                        }
-                    },
-                    Err(e) => last_result = Err(e), // Erro HTTP (ex: 502), tenta próximo
+        match client.get(&url).query(&params).send().await {
+            Ok(response) => match response.error_for_status() {
+                Ok(valid_response) => match valid_response.json::<Vec<ApiStation>>().await {
+                    Ok(api_stations) => {
+                        debug!("Found {} stations from {}", api_stations.len(), server);
+                        return Ok(api_stations.into_iter().map(Station::from).collect());
+                    }
+                    Err(e) => {
+                        warn!("JSON parse error from {}: {}", server, e);
+                        last_error = Some(e);
+                    }
+                },
+                Err(e) => {
+                    warn!("HTTP error from {}: {}", server, e);
+                    last_error = Some(e);
                 }
             },
-            Err(e) => last_result = Err(e), // Erro de conexão, tenta próximo
+            Err(e) => {
+                warn!("Connection error to {}: {}", server, e);
+                last_error = Some(e);
+            }
         }
     }
-    
-    // Se chegou aqui, todos os servidores falharam. Retorna o erro da última tentativa.
-    last_result
+
+    // All servers failed - return the last error or empty result
+    match last_error {
+        Some(e) => Err(e),
+        None => Ok(Vec::new()),
+    }
 }

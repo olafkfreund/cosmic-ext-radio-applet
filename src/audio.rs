@@ -1,8 +1,9 @@
 use std::process::{Child, Command};
 use std::sync::{Arc, Mutex};
+use tracing::{debug, error, warn};
+use url::Url;
 
 pub struct AudioManager {
-    // Usar Mutex para guardar o processo filho e poder matar depois
     process: Arc<Mutex<Option<Child>>>,
 }
 
@@ -13,10 +14,41 @@ impl AudioManager {
         }
     }
 
+    /// Validates that a URL is safe to pass to mpv (http/https only)
+    fn validate_url(url: &str) -> Result<(), &'static str> {
+        match Url::parse(url) {
+            Ok(parsed) => {
+                let scheme = parsed.scheme();
+                if scheme == "http" || scheme == "https" {
+                    // Block localhost and private IP ranges
+                    if let Some(host) = parsed.host_str() {
+                        if host == "localhost"
+                            || host == "127.0.0.1"
+                            || host.starts_with("192.168.")
+                            || host.starts_with("10.")
+                            || host.starts_with("172.16.")
+                        {
+                            return Err("Local/private URLs not allowed");
+                        }
+                    }
+                    Ok(())
+                } else {
+                    Err("Only http/https URLs are allowed")
+                }
+            }
+            Err(_) => Err("Invalid URL format"),
+        }
+    }
+
     pub fn play(&self, url: String, volume: u8) {
+        // Validate URL before passing to mpv (security)
+        if let Err(e) = Self::validate_url(&url) {
+            error!("Invalid stream URL: {} - {}", url, e);
+            return;
+        }
+
         self.stop(); // Stop current if any
-        
-        // Spawn mpv --no-video --volume=X --volume-max=200 --af=lavfi=[dynaudnorm] url
+
         let child = Command::new("mpv")
             .arg("--no-video")
             .arg(format!("--volume={}", volume))
@@ -24,31 +56,46 @@ impl AudioManager {
             .arg("--af=lavfi=[dynaudnorm]")
             .arg(&url)
             .spawn();
-            
-        println!("AudioManager: Spawned mpv for {}", url);
-            
-        if let Ok(child) = child {
-            if let Ok(mut guard) = self.process.lock() {
-                *guard = Some(child);
+
+        debug!("Spawned mpv for {}", url);
+
+        match child {
+            Ok(child) => {
+                if let Ok(mut guard) = self.process.lock() {
+                    *guard = Some(child);
+                }
             }
-        } else {
-            eprintln!("AudioManager: Failed to start mpv");
+            Err(e) => {
+                error!("Failed to start mpv: {}", e);
+            }
         }
     }
 
     pub fn stop(&self) {
         if let Ok(mut guard) = self.process.lock() {
             if let Some(mut child) = guard.take() {
-                let _ = child.kill();
+                if let Err(e) = child.kill() {
+                    warn!("Failed to kill mpv process: {}", e);
+                }
                 let _ = child.wait();
             }
         }
     }
-    
+
     pub fn set_volume(&self, _vol: f32) {
-        // Implementar controle de volume via IPC do MPV seria ideal,
-        // mas por enquanto deixa sem ou reinicia?
-        // MPV supports --volume arg at start.
-        // For runtime volume, we need IPC socket. Too complex for now.
+        // TODO: Implement volume control via mpv IPC socket
+        // For now, volume is only set at stream start
+    }
+}
+
+impl Default for AudioManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Drop for AudioManager {
+    fn drop(&mut self) {
+        self.stop();
     }
 }

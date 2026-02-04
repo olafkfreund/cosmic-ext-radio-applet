@@ -80,7 +80,61 @@ cd cosmic-radio-applet
 sudo just install
 ```
 
-### � License
+#### NixOS Installation
+
+This project includes a Nix flake with NixOS and Home Manager modules.
+
+**Using Nix Flakes:**
+```bash
+# Build and run directly
+nix run github:marcossl10/cosmic-radio-applet
+
+# Or build the package
+nix build github:marcossl10/cosmic-radio-applet
+```
+
+**NixOS Module:**
+```nix
+{
+  inputs.cosmic-radio-applet.url = "github:marcossl10/cosmic-radio-applet";
+
+  outputs = { nixpkgs, cosmic-radio-applet, ... }: {
+    nixosConfigurations.yourhost = nixpkgs.lib.nixosSystem {
+      modules = [
+        cosmic-radio-applet.nixosModules.cosmic-radio-applet
+        {
+          programs.cosmic-radio-applet = {
+            enable = true;
+            settings.volume = 75;
+          };
+        }
+      ];
+    };
+  };
+}
+```
+
+**Home Manager Module:**
+```nix
+{
+  imports = [ cosmic-radio-applet.homeManagerModules.cosmic-radio-applet ];
+
+  programs.cosmic-radio-applet = {
+    enable = true;
+    autostart = true;
+    settings = {
+      volume = 50;
+      favorites = [{
+        stationuuid = "96202c39-0601-11e8-ae97-52543be04c81";
+        name = "SomaFM - Groove Salad";
+        url_resolved = "https://ice1.somafm.com/groovesalad-128-mp3";
+      }];
+    };
+  };
+}
+```
+
+### 📄 License
 
 This project is under the [MIT](LICENSE) license.
 
@@ -100,6 +154,64 @@ Um player de rádio online moderno e integrado ao painel do COSMIC Desktop, dese
 - **Lista de Favoritos**: Salve suas estações preferidas.
 - **Áudio de Alta Qualidade**: Utiliza o `mpv` como backend de reprodução.
 - **Amplificação e Normalização**: Suporte a volume de até 200% e normalização dinâmica de áudio.
+
+### 🚀 Instalação NixOS
+
+Este projeto inclui um flake Nix com módulos NixOS e Home Manager.
+
+**Usando Nix Flakes:**
+```bash
+# Compilar e executar diretamente
+nix run github:marcossl10/cosmic-radio-applet
+
+# Ou compilar o pacote
+nix build github:marcossl10/cosmic-radio-applet
+```
+
+**Módulo NixOS:**
+```nix
+{
+  inputs.cosmic-radio-applet.url = "github:marcossl10/cosmic-radio-applet";
+
+  outputs = { nixpkgs, cosmic-radio-applet, ... }: {
+    nixosConfigurations.seuhost = nixpkgs.lib.nixosSystem {
+      modules = [
+        cosmic-radio-applet.nixosModules.cosmic-radio-applet
+        {
+          programs.cosmic-radio-applet = {
+            enable = true;
+            settings.volume = 75;
+          };
+        }
+      ];
+    };
+  };
+}
+```
+
+**Módulo Home Manager:**
+```nix
+{
+  imports = [ cosmic-radio-applet.homeManagerModules.cosmic-radio-applet ];
+
+  programs.cosmic-radio-applet = {
+    enable = true;
+    autostart = true;
+    settings = {
+      volume = 50;
+      favorites = [{
+        stationuuid = "96202c39-0601-11e8-ae97-52543be04c81";
+        name = "SomaFM - Groove Salad";
+        url_resolved = "https://ice1.somafm.com/groovesalad-128-mp3";
+      }];
+    };
+  };
+}
+```
+
+### 📄 Licença
+
+Este projeto está sob a licença [MIT](LICENSE).
 
 ---
 Developed by [marcossl10](https://github.com/marcossl10).

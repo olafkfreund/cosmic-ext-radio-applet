@@ -1,6 +1,6 @@
 # Radio for COSMIC
 
-[![CI](https://github.com/marcossl10/cosmic-radio-applet/workflows/CI/badge.svg)](https://github.com/marcossl10/cosmic-radio-applet/actions/workflows/ci.yml)
+[![CI](https://github.com/olafkfreund/cosmic-ext-radio-applet/workflows/CI/badge.svg)](https://github.com/olafkfreund/cosmic-ext-radio-applet/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 [English](#english) | [Português](#português)
@@ -116,8 +116,8 @@ sudo pacman -S pkgconf libxkbcommon wayland openssl alsa-lib
 Clone the repository and use `just` to install:
 
 ```bash
-git clone https://github.com/marcossl10/cosmic-radio-applet.git
-cd cosmic-radio-applet
+git clone https://github.com/olafkfreund/cosmic-ext-radio-applet.git
+cd cosmic-ext-radio-applet
 sudo just install
 ```
 
@@ -128,21 +128,21 @@ This project includes a Nix flake with NixOS and Home Manager modules.
 **Using Nix Flakes:**
 ```bash
 # Build and run directly
-nix run github:marcossl10/cosmic-radio-applet
+nix run github:olafkfreund/cosmic-ext-radio-applet
 
 # Or build the package
-nix build github:marcossl10/cosmic-radio-applet
+nix build github:olafkfreund/cosmic-ext-radio-applet
 ```
 
 **NixOS Module:**
 ```nix
 {
-  inputs.cosmic-radio-applet.url = "github:marcossl10/cosmic-radio-applet";
+  inputs.cosmic-ext-radio-applet.url = "github:olafkfreund/cosmic-ext-radio-applet";
 
-  outputs = { nixpkgs, cosmic-radio-applet, ... }: {
+  outputs = { nixpkgs, cosmic-ext-radio-applet, ... }: {
     nixosConfigurations.yourhost = nixpkgs.lib.nixosSystem {
       modules = [
-        cosmic-radio-applet.nixosModules.cosmic-ext-applet-radio
+        cosmic-ext-radio-applet.nixosModules.cosmic-ext-applet-radio
         {
           programs.cosmic-ext-applet-radio = {
             enable = true;
@@ -158,7 +158,7 @@ nix build github:marcossl10/cosmic-radio-applet
 **Home Manager Module:**
 ```nix
 {
-  imports = [ cosmic-radio-applet.homeManagerModules.cosmic-ext-applet-radio ];
+  imports = [ cosmic-ext-radio-applet.homeManagerModules.cosmic-ext-applet-radio ];
 
   programs.cosmic-ext-applet-radio = {
     enable = true;
@@ -180,8 +180,8 @@ nix build github:marcossl10/cosmic-radio-applet
 #### Building from Source
 
 ```bash
-git clone https://github.com/marcossl10/cosmic-radio-applet.git
-cd cosmic-radio-applet
+git clone https://github.com/olafkfreund/cosmic-ext-radio-applet.git
+cd cosmic-ext-radio-applet
 cargo build --release
 ```
 
@@ -279,21 +279,21 @@ Este projeto inclui um flake Nix com módulos NixOS e Home Manager.
 **Usando Nix Flakes:**
 ```bash
 # Compilar e executar diretamente
-nix run github:marcossl10/cosmic-radio-applet
+nix run github:olafkfreund/cosmic-ext-radio-applet
 
 # Ou compilar o pacote
-nix build github:marcossl10/cosmic-radio-applet
+nix build github:olafkfreund/cosmic-ext-radio-applet
 ```
 
 **Módulo NixOS:**
 ```nix
 {
-  inputs.cosmic-radio-applet.url = "github:marcossl10/cosmic-radio-applet";
+  inputs.cosmic-ext-radio-applet.url = "github:olafkfreund/cosmic-ext-radio-applet";
 
-  outputs = { nixpkgs, cosmic-radio-applet, ... }: {
+  outputs = { nixpkgs, cosmic-ext-radio-applet, ... }: {
     nixosConfigurations.seuhost = nixpkgs.lib.nixosSystem {
       modules = [
-        cosmic-radio-applet.nixosModules.cosmic-ext-applet-radio
+        cosmic-ext-radio-applet.nixosModules.cosmic-ext-applet-radio
         {
           programs.cosmic-ext-applet-radio = {
             enable = true;
@@ -309,7 +309,7 @@ nix build github:marcossl10/cosmic-radio-applet
 **Módulo Home Manager:**
 ```nix
 {
-  imports = [ cosmic-radio-applet.homeManagerModules.cosmic-ext-applet-radio ];
+  imports = [ cosmic-ext-radio-applet.homeManagerModules.cosmic-ext-applet-radio ];
 
   programs.cosmic-ext-applet-radio = {
     enable = true;
@@ -331,8 +331,8 @@ nix build github:marcossl10/cosmic-radio-applet
 #### Compilando do Código Fonte
 
 ```bash
-git clone https://github.com/marcossl10/cosmic-radio-applet.git
-cd cosmic-radio-applet
+git clone https://github.com/olafkfreund/cosmic-ext-radio-applet.git
+cd cosmic-ext-radio-applet
 cargo build --release
 ```
 

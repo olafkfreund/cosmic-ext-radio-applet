@@ -100,7 +100,7 @@
 
             meta = with pkgs.lib; {
               description = "Internet radio player applet for the COSMIC Desktop";
-              homepage = "https://github.com/marcossl10/cosmic-radio-applet";
+              homepage = "https://github.com/olafkfreund/cosmic-ext-radio-applet";
               license = licenses.mit;
               maintainers = [ ];
               platforms = platforms.linux;

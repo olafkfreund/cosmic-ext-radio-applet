@@ -90,12 +90,12 @@ Add to your NixOS configuration:
 
 ```nix
 {
-  inputs.cosmic-radio-applet.url = "github:marcossl10/cosmic-radio-applet";
+  inputs.cosmic-ext-radio-applet.url = "github:olafkfreund/cosmic-ext-radio-applet";
 
-  outputs = { self, nixpkgs, cosmic-radio-applet, ... }: {
+  outputs = { self, nixpkgs, cosmic-ext-radio-applet, ... }: {
     nixosConfigurations.yourhost = nixpkgs.lib.nixosSystem {
       modules = [
-        cosmic-radio-applet.nixosModules.cosmic-ext-applet-radio
+        cosmic-ext-radio-applet.nixosModules.cosmic-ext-applet-radio
         {
           programs.cosmic-ext-applet-radio = {
             enable = true;
@@ -124,7 +124,7 @@ Add to your Home Manager configuration:
 
 ```nix
 {
-  imports = [ cosmic-radio-applet.homeManagerModules.cosmic-ext-applet-radio ];
+  imports = [ cosmic-ext-radio-applet.homeManagerModules.cosmic-ext-applet-radio ];
 
   programs.cosmic-ext-applet-radio = {
     enable = true;

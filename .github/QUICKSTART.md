@@ -56,7 +56,7 @@ The README shows the current CI status:
 
 ### GitHub Actions Tab
 View detailed build logs at:
-`https://github.com/marcossl10/cosmic-ext-applet-radio/actions`
+`https://github.com/olafkfreund/cosmic-ext-radio-applet/actions`
 
 ## Common Scenarios
 
